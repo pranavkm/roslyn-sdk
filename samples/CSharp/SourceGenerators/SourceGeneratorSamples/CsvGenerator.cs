@@ -153,12 +153,19 @@ namespace CSV {
 
         static IEnumerable<(CsvLoadType, bool, AdditionalText)> GetLoadOptions(GeneratorExecutionContext context)
         {
+#pragma warning disable IDE0008 // Use explicit type
+            var problemFiles = new List<string>();
+#pragma warning restore IDE0008 // Use explicit type
             foreach (AdditionalText file in context.AdditionalFiles)
             {
                 if (Path.GetExtension(file.Path).Equals(".csv", StringComparison.OrdinalIgnoreCase))
                 {
                     // are there any options for it?
-                    context.AnalyzerConfigOptions.GetOptions(file).TryGetValue("build_metadata.additionalfiles.CsvLoadType", out string? loadTimeString);
+                    if (!context.AnalyzerConfigOptions.GetOptions(file).TryGetValue("build_metadata.additionalfiles.CsvLoadType", out string? loadTimeString))
+                    {
+                        problemFiles.Add(file.Path);
+                        continue;
+                    }
                     Enum.TryParse(loadTimeString, ignoreCase: true, out CsvLoadType loadType);
 
                     context.AnalyzerConfigOptions.GetOptions(file).TryGetValue("build_metadata.additionalfiles.CacheObjects", out string? cacheObjectsString);
@@ -167,6 +174,8 @@ namespace CSV {
                     yield return (loadType, cacheObjects, file);
                 }
             }
+
+            throw new InvalidOperationException($"CsvLoadTye not found for '{string.Join(", ", problemFiles)}.");
         }
 
         public void Execute(GeneratorExecutionContext context)

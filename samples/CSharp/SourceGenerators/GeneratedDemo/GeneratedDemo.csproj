@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="People.csv" CsvLoadType="Startup" />
+    <None Remove="Houses.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\..\GeneratedDemo\People.csv" CsvLoadType="Startup" />
+    <AdditionalFiles Include="Houses.csv" CsvLoadType="Startup" />
     <AdditionalFiles Include="Cars.csv" CsvLoadType="OnDemand" CacheObjects="true" />
 
     <AdditionalFiles Include="MainSettings.xmlsettings" CopyToOutputDirectory="PreserveNewest" />
